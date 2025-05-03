@@ -1,75 +1,728 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Age Calculator</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>Advanced Age Calculator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chart.js/3.7.0/chart.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --primary-bg: #f8f9fa;
+            --secondary-bg: #ffffff;
+            --accent-color: #4361ee;
+            --accent-hover: #3a56d4;
+            --primary-text: #333;
+            --secondary-text: #666;
+            --light-text: #999;
+            --box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+            --border-radius: 12px;
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        .dark-mode {
+            --primary-bg: #121212;
+            --secondary-bg: #1e1e1e;
+            --accent-color: #7289da;
+            --accent-hover: #5e78d5;
+            --primary-text: #f4f4f4;
+            --secondary-text: #bbb;
+            --light-text: #888;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--primary-bg);
+            color: var(--primary-text);
+            line-height: 1.6;
+            transition: var(--transition);
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-weight: 700;
+            font-size: 2.2rem;
+            color: var(--accent-color);
+            margin: 10px 0;
+        }
+
+        h2 {
+            font-weight: 600;
+            font-size: 1.5rem;
+            margin: 15px 0;
+            color: var(--accent-color);
+        }
+
+        .theme-toggle {
+            background: var(--secondary-bg);
+            color: var(--accent-color);
+            border: 2px solid var(--accent-color);
+            padding: 8px 16px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+        }
+
+        .theme-toggle:hover {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .calculator-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 30px;
+        }
+
+        @media (min-width: 768px) {
+            .calculator-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .card {
+            background: var(--secondary-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 25px;
+            height: 100%;
+            transition: var(--transition);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.12);
+        }
+
+        .form-section {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .input-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            font-weight: 500;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            color: var(--secondary-text);
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            background: var(--primary-bg);
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            transition: var(--transition);
+            color: var(--primary-text);
+        }
+
+        input:focus, select:focus {
+            border-color: var(--accent-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+        }
+
+        .btn {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: var(--transition);
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+        }
+
+        .result-section {
+            padding: 20px;
+        }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        @media (min-width: 768px) {
+            .result-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .result-box {
+            background: var(--primary-bg);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            transition: var(--transition);
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .result-box.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .result-title {
+            font-weight: 600;
+            color: var(--secondary-text);
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+
+        .result-value {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--accent-color);
+        }
+
+        .chart-container {
+            width: 100%;
+            height: 250px;
+            position: relative;
+            margin-top: 20px;
+        }
+
+        .life-stats {
+            margin-top: 30px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .stat-item {
+            background: var(--primary-bg);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--accent-color);
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--secondary-text);
+        }
+
+        .zodiac-info {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .zodiac-emoji {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+
+        .zodiac-traits {
+            background: var(--primary-bg);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-size: 0.9rem;
+            color: var(--secondary-text);
+        }
+
+        .traits-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .trait-tag {
+            background: var(--accent-color);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+
+        .next-birthday {
+            background: var(--primary-bg);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .next-birthday-countdown {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-top: 5px;
+            color: var(--accent-color);
+        }
+
+        .faq-section {
+            margin-top: 40px;
+        }
+
+        .faq-item {
+            background: var(--secondary-bg);
+            margin-bottom: 15px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: var(--box-shadow);
+        }
+
+        .faq-question {
+            background: none;
+            border: none;
+            text-align: left;
+            width: 100%;
+            padding: 15px 20px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--primary-text);
+        }
+
+        .faq-question i {
+            transition: var(--transition);
+        }
+
+        .faq-question.active i {
+            transform: rotate(180deg);
+        }
+
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            padding: 0 20px;
+            transition: max-height 0.3s ease-out, padding 0.3s ease;
+            color: var(--secondary-text);
+        }
+
+        .faq-answer.show {
+            max-height: 200px;
+            padding: 0 20px 20px;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px 0;
+            font-size: 0.9rem;
+            color: var(--secondary-text);
+            border-top: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .tab-container {
+            display: flex;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            overflow: hidden;
+            background: var(--primary-bg);
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--secondary-text);
+            transition: var(--transition);
+        }
+
+        .tab-btn.active {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .save-history {
+            background: var(--primary-bg);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .history-list {
+            list-style: none;
+            margin-top: 10px;
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .history-remove {
+            color: #ff4d4d;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .history-remove:hover {
+            transform: scale(1.2);
+        }
+
+        .biorhythm-chart {
+            height: 250px;
+            margin-top: 20px;
+        }
+
+        .biorhythm-legend {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.8rem;
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+    </style>
 </head>
 
 <body>
     <div class="container">
         <header>
-            <h1>📅 Age Calculator</h1>
-            <button id="theme-toggle">🌙 Toggle Theme</button>
+            <h1><i class="fas fa-calendar-alt"></i> Advanced Age Calculator</h1>
+            <button id="theme-toggle" class="theme-toggle">
+                <i class="fas fa-moon"></i> Toggle Theme
+            </button>
         </header>
 
-        <section class="form-section">
-            <h2>Enter Your Birth Details</h2>
+        <div class="calculator-grid">
+            <div class="card form-section">
+                <h2>Enter Your Birth Details</h2>
 
-            <div class="input-group">
-                <label for="date">Date of Birth</label>
-                <input type="number" id="date" placeholder="DD" min="1" max="31" required>
+                <div class="tab-container">
+                    <button class="tab-btn active" data-tab="birth-details">Birth Details</button>
+                    <button class="tab-btn" data-tab="additional-info">Additional Info</button>
+                </div>
+
+                <div id="birth-details" class="tab-content active">
+                    <div class="input-container">
+                        <div class="input-group">
+                            <label for="date">Day</label>
+                            <input type="number" id="date" placeholder="DD" min="1" max="31" required>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="month">Month</label>
+                            <select id="month" required>
+                                <option value="" disabled selected>Select</option>
+                                <option value="1">January</option>
+                                <option value="2">February</option>
+                                <option value="3">March</option>
+                                <option value="4">April</option>
+                                <option value="5">May</option>
+                                <option value="6">June</option>
+                                <option value="7">July</option>
+                                <option value="8">August</option>
+                                <option value="9">September</option>
+                                <option value="10">October</option>
+                                <option value="11">November</option>
+                                <option value="12">December</option>
+                            </select>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="year">Year</label>
+                            <input type="number" id="year" placeholder="YYYY" min="1900" max="2025" required>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="time">Time of Birth (Optional)</label>
+                        <input type="time" id="time">
+                    </div>
+                </div>
+
+                <div id="additional-info" class="tab-content">
+                    <div class="input-group">
+                        <label for="target-date">Compare with specific date (Optional)</label>
+                        <input type="date" id="target-date">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="life-expectancy">Life Expectancy (Years)</label>
+                        <input type="number" id="life-expectancy" value="80" min="1" max="120">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="name">Your Name (Optional)</label>
+                        <input type="text" id="name" placeholder="Enter your name">
+                    </div>
+                </div>
+
+                <button id="calculate-btn" class="btn">
+                    <i class="fas fa-calculator"></i> Calculate Age
+                </button>
             </div>
 
-            <div class="input-group">
-                <label for="month">Month</label>
-                <input type="number" id="month" placeholder="MM" min="1" max="12" required>
+            <div class="card result-section">
+                <div id="results" style="display: none;">
+                    <h2>Your Age Results</h2>
+
+                    <div class="tab-container">
+                        <button class="tab-btn active" data-tab="basic-results">Basic</button>
+                        <button class="tab-btn" data-tab="detailed-results">Detailed</button>
+                        <button class="tab-btn" data-tab="zodiac-results">Zodiac</button>
+                    </div>
+
+                    <div id="basic-results" class="tab-content active">
+                        <div class="result-grid">
+                            <div class="result-box show" id="age-main">
+                                <div class="result-title">Your Exact Age</div>
+                                <div class="result-value" id="age-value"></div>
+                            </div>
+                            
+                            <div class="result-box show" id="next-birthday-box">
+                                <div class="result-title">Next Birthday</div>
+                                <div class="result-value" id="next-birthday-value"></div>
+                            </div>
+                        </div>
+
+                        <div class="chart-container">
+                            <canvas id="ageChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div id="detailed-results" class="tab-content">
+                        <div class="life-stats">
+                            <h3>Life Statistics</h3>
+                            <div class="stats-grid">
+                                <div class="stat-item">
+                                    <div class="stat-value" id="days-lived"></div>
+                                    <div class="stat-label">Days Lived</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-value" id="hours-lived"></div>
+                                    <div class="stat-label">Hours Lived</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-value" id="weeks-lived"></div>
+                                    <div class="stat-label">Weeks Lived</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="life-stats">
+                            <h3>Life Journey</h3>
+                            <div class="stats-grid">
+                                <div class="stat-item">
+                                    <div class="stat-value" id="life-percentage"></div>
+                                    <div class="stat-label">Life Completed</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-value" id="heartbeats"></div>
+                                    <div class="stat-label">Heartbeats (M)</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-value" id="breaths"></div>
+                                    <div class="stat-label">Breaths (M)</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="biorhythm-chart">
+                            <h3>Today's Biorhythm</h3>
+                            <canvas id="biorhythmChart"></canvas>
+                            <div class="biorhythm-legend">
+                                <div class="legend-item">
+                                    <div class="legend-color" style="background-color: rgba(255, 99, 132, 0.7);"></div>
+                                    <span>Physical</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color" style="background-color: rgba(54, 162, 235, 0.7);"></div>
+                                    <span>Emotional</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color" style="background-color: rgba(255, 206, 86, 0.7);"></div>
+                                    <span>Intellectual</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="zodiac-results" class="tab-content">
+                        <div class="zodiac-info">
+                            <div class="zodiac-emoji" id="zodiac-emoji"></div>
+                            <h3 id="zodiac-sign"></h3>
+                            <p id="zodiac-date-range"></p>
+
+                            <div class="zodiac-traits">
+                                <h4>Personality Traits</h4>
+                                <div class="traits-list" id="traits-list"></div>
+                            </div>
+
+                            <div class="zodiac-traits">
+                                <h4>Element</h4>
+                                <p id="zodiac-element"></p>
+                            </div>
+
+                            <div class="zodiac-traits">
+                                <h4>Lucky Numbers</h4>
+                                <p id="lucky-numbers"></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="save-history">
+                        <button id="save-result" class="btn">
+                            <i class="fas fa-save"></i> Save This Result
+                        </button>
+                    </div>
+                </div>
+
+                <div id="no-results" class="text-center">
+                    <i class="fas fa-hourglass-start" style="font-size: 3rem; color: var(--light-text); margin: 30px 0;"></i>
+                    <p>Enter your birth details and click Calculate to see your results</p>
+                </div>
             </div>
+        </div>
 
-            <div class="input-group">
-                <label for="year">Year</label>
-                <input type="number" id="year" placeholder="YYYY" min="1900" max="2025" required>
-            </div>
+        <div class="card" id="history-section" style="display: none; margin-top: 30px;">
+            <h2>Your Saved Calculations</h2>
+            <ul class="history-list" id="history-list"></ul>
+        </div>
 
-            <div class="input-group">
-                <label for="time">Time of Birth (Optional)</label>
-                <input type="time" id="time">
-            </div>
-
-            <button onclick="calculateAge()">Calculate Age</button>
-        </section>
-
-        <section id="result-section">
-            <h2>🎉 Your Age & Zodiac Sign</h2>
-            <div id="age-result"></div>
-            <div id="zodiac-sign"></div>
-            <canvas id="ageChart"></canvas>
-        </section>
-
-        <section id="faq">
-            <h2>❓ Frequently Asked Questions</h2>
+        <section class="faq-section">
+            <h2><i class="fas fa-question-circle"></i> Frequently Asked Questions</h2>
+            
             <div class="faq-item">
-                <button class="faq-question">How does this work? ⬇</button>
-                <p class="faq-answer">This calculator determines your exact age, considering leap years and current date.</p>
+                <button class="faq-question">
+                    How accurate is this age calculator?
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="faq-answer">
+                    This calculator provides precise age calculations down to the day, considering leap years and exact dates. When you provide the time of birth, it becomes even more accurate.
+                </div>
             </div>
+            
             <div class="faq-item">
-                <button class="faq-question">Can I add time of birth? ⬇</button>
-                <p class="faq-answer">Yes! Entering your birth time makes the calculation more precise.</p>
+                <button class="faq-question">
+                    What is a biorhythm?
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="faq-answer">
+                    Biorhythms are theoretical cycles that affect physical, emotional, and intellectual aspects of human life. The theory suggests these cycles begin at birth and oscillate in a predictable, sinusoidal pattern. While not scientifically proven, many find them interesting for self-reflection.
+                </div>
             </div>
+            
             <div class="faq-item">
-                <button class="faq-question">Why do I see wrong results? ⬇</button>
-                <p class="faq-answer">Ensure your date, month, and year inputs are correct before calculating.</p>
+                <button class="faq-question">
+                    How is the zodiac sign determined?
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="faq-answer">
+                    Zodiac signs are determined by the position of the sun at the time of your birth. Each sign corresponds to a specific date range in the calendar year. This calculator uses your birth month and day to identify your sun sign in Western astrology.
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <button class="faq-question">
+                    Can I compare my age with a specific date?
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="faq-answer">
+                    Yes! In the Additional Info tab, you can enter a target date to calculate your age on that specific date instead of today. This feature is useful for determining your age at past or future events.
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <button class="faq-question">
+                    What does "Life Completed" percentage mean?
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="faq-answer">
+                    The "Life Completed" percentage calculates how much of your expected lifespan you've lived so far, based on the life expectancy value you enter. This is purely an estimate and meant for informational purposes only.
+                </div>
             </div>
         </section>
 
         <footer>
-            <p>© 2025 Age Calculator | Developed by You Raj</p>
+            <p>© 2025 Advanced Age Calculator | Developed by You Raj | All Rights Reserved</p>
+            <p>This calculator is for entertainment and informational purposes only</p>
         </footer>
     </div>
 
     <script src="script.js"></script>
 </body>
+
 </html>
