@@ -1,121 +1,177 @@
-document.getElementById("theme-toggle").addEventListener("click", function() {
-    document.body.classList.toggle("dark-mode");
-});
+        // Theme Toggle Functionality
+        document.getElementById("theme-toggle").addEventListener("click", function() {
+            document.body.classList.toggle("dark-mode");
+            
+            // Save theme preference
+            if (document.body.classList.contains("dark-mode")) {
+                localStorage.setItem("theme", "dark");
+                this.innerHTML = '<i class="fas fa-sun"></i> Toggle Theme';
+            } else {
+                localStorage.setItem("theme", "light");
+                this.innerHTML = '<i class="fas fa-moon"></i> Toggle Theme';
+            }
+        });
 
-// Function to Calculate Age and Zodiac Sign
-function calculateAge() {
-    const day = parseInt(document.getElementById('date').value);
-    const month = parseInt(document.getElementById('month').value);
-    const year = parseInt(document.getElementById('year').value);
-    const birthTime = document.getElementById('time').value;
-
-    if (!day || !month || !year) {
-        alert("Please enter valid birth details.");
-        return;
-    }
-
-    let today = new Date();
-    let birthDate = new Date(year, month - 1, day);
-    let ageYears = today.getFullYear() - birthDate.getFullYear();
-    let ageMonths = today.getMonth() - birthDate.getMonth();
-    let ageDays = today.getDate() - birthDate.getDate();
-
-    if (ageDays < 0) {
-        ageMonths -= 1;
-        ageDays += new Date(today.getFullYear(), today.getMonth(), 0).getDate();
-    }
-
-    if (ageMonths < 0) {
-        ageYears -= 1;
-        ageMonths += 12;
-    }
-
-    let zodiacSign = getZodiacSign(day, month);
-
-    let resultSection = document.getElementById('age-result');
-    resultSection.innerHTML = `
-        🎂 Age: <strong>${ageYears} Years, ${ageMonths} Months, ${ageDays} Days</strong><br>
-        🌟 Zodiac Sign: <strong>${zodiacSign}</strong> ${getZodiacEmoji(zodiacSign)} <br>
-        ⏳ Birth Time: <strong>${birthTime || "Not Provided"}</strong>
-    `;
-    
-    // Apply smooth fade-in animation
-    resultSection.style.opacity = 0;
-    setTimeout(() => {
-        resultSection.style.opacity = 1;
-    }, 300);
-
-    renderAgeChart(ageYears, ageMonths, ageDays);
-}
-
-// Function to Get Correct Zodiac Sign
-function getZodiacSign(day, month) {
-    const zodiacSigns = [
-        { sign: "Capricorn", start: "01-01", end: "01-19" },
-        { sign: "Aquarius", start: "01-20", end: "02-18" },
-        { sign: "Pisces", start: "02-19", end: "03-20" },
-        { sign: "Aries", start: "03-21", end: "04-19" },
-        { sign: "Taurus", start: "04-20", end: "05-20" },
-        { sign: "Gemini", start: "05-21", end: "06-20" },
-        { sign: "Cancer", start: "06-21", end: "07-22" },
-        { sign: "Leo", start: "07-23", end: "08-22" },
-        { sign: "Virgo", start: "08-23", end: "09-22" },
-        { sign: "Libra", start: "09-23", end: "10-22" },
-        { sign: "Scorpio", start: "10-23", end: "11-21" },
-        { sign: "Sagittarius", start: "11-22", end: "12-21" },
-        { sign: "Capricorn", start: "12-22", end: "12-31" } // Capricorn appears twice for Jan & Dec
-    ];
-
-    const birthDate = `${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
-    return zodiacSigns.find(z => birthDate >= z.start && birthDate <= z.end).sign;
-}
-
-// Function to Get Zodiac Emoji
-function getZodiacEmoji(zodiac) {
-    const emojis = {
-        "Capricorn": "♑", "Aquarius": "♒", "Pisces": "♓", "Aries": "♈",
-        "Taurus": "♉", "Gemini": "♊", "Cancer": "♋", "Leo": "♌",
-        "Virgo": "♍", "Libra": "♎", "Scorpio": "♏", "Sagittarius": "♐"
-    };
-    return emojis[zodiac] || "";
-}
-
-// Function to Render Age Chart (Pie Chart)
-function renderAgeChart(years, months, days) {
-    const ctx = document.getElementById('ageChart').getContext('2d');
-
-    // Destroy existing chart instance if it exists
-    if (window.ageChartInstance) {
-        window.ageChartInstance.destroy();
-    }
-
-    window.ageChartInstance = new Chart(ctx, {
-        type: 'pie',
-        data: {
-            labels: ['Years', 'Months', 'Days'],
-            datasets: [{
-                label: 'Age Breakdown',
-                data: [years, months, days],
-                backgroundColor: ['#ff6384', '#36a2eb', '#ffce56'],
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true
+        // Load saved theme
+        if (localStorage.getItem("theme") === "dark") {
+            document.body.classList.add("dark-mode");
+            document.getElementById("theme-toggle").innerHTML = '<i class="fas fa-sun"></i> Toggle Theme';
         }
-    });
-}
 
+        // Tab Navigation
+        document.querySelectorAll('.tab-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                // Get parent tab container
+                const tabContainer = button.closest('.tab-container');
+                
+                // Get all tabs from the same group
+                const tabButtons = tabContainer.querySelectorAll('.tab-btn');
+                const tabContents = tabContainer.parentElement.querySelectorAll('.tab-content');
+                
+                // Remove active class from all tabs
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                tabContents.forEach(content => content.classList.remove('active'));
+                
+                // Add active class to clicked tab
+                button.classList.add('active');
+                
+                // Show corresponding content
+                const tabId = button.getAttribute('data-tab');
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
 
-// FAQ Section Toggle with Smooth Animation
-document.querySelectorAll(".faq-question").forEach(button => {
-    button.addEventListener("click", () => {
-        const answer = button.nextElementSibling;
-        answer.style.display = answer.style.display === "block" ? "none" : "block";
+        // FAQ Toggle
+        document.querySelectorAll('.faq-question').forEach(question => {
+            question.addEventListener('click', () => {
+                const answer = question.nextElementSibling;
+                
+                // Toggle active class on question
+                question.classList.toggle('active');
+                
+                // Toggle show class on answer
+                answer.classList.toggle('show');
+            });
+        });
 
-        // Apply smooth slide-down animation
-        answer.style.maxHeight = answer.style.display === "block" ? answer.scrollHeight + "px" : "0px";
-        answer.style.overflow = "hidden";
-        answer.style.transition = "max-height 0.5s ease-out";
-    });
-});
+        // Calculate age and other metrics
+        document.getElementById('calculate-btn').addEventListener('click', calculateAge);
+
+        // Array to store calculation history
+        let calculationHistory = JSON.parse(localStorage.getItem('ageCalcHistory')) || [];
+        
+        // Update history display on load
+        updateHistoryDisplay();
+
+        // Calculate Age Function
+        function calculateAge() {
+            const day = parseInt(document.getElementById('date').value);
+            const month = parseInt(document.getElementById('month').value);
+            const year = parseInt(document.getElementById('year').value);
+            const birthTime = document.getElementById('time').value;
+            const name = document.getElementById('name').value || "Your";
+            const lifeExpectancy = parseInt(document.getElementById('life-expectancy').value) || 80;
+            
+            // Validate input
+            if (isNaN(day) || isNaN(month) || isNaN(year)) {
+                alert("Please enter valid numeric birth details.");
+                return;
+            }
+            
+            // Create birthday date object
+            let birthDate = new Date(year, month - 1, day);
+            
+            // Get target date (today or specified date)
+            let targetDate = new Date();
+            const specifiedDate = document.getElementById('target-date').value;
+            if (specifiedDate) {
+                targetDate = new Date(specifiedDate);
+            }
+            
+            // Calculate basic age
+            let ageYears = targetDate.getFullYear() - birthDate.getFullYear();
+            let ageMonths = targetDate.getMonth() - birthDate.getMonth();
+            let ageDays = targetDate.getDate() - birthDate.getDate();
+            
+            // Adjust for negative days
+            if (ageDays < 0) {
+                ageMonths--;
+                // Get days in the previous month
+                const prevMonthDate = new Date(targetDate.getFullYear(), targetDate.getMonth(), 0);
+                ageDays += prevMonthDate.getDate();
+            }
+            
+            // Adjust for negative months
+            if (ageMonths < 0) {
+                ageYears--;
+                ageMonths += 12;
+            }
+            
+            // Display main age result
+            document.getElementById('age-value').textContent = `${ageYears} years, ${ageMonths} months, ${ageDays} days`;
+            
+            // Calculate total days lived
+            const millisecondsPerDay = 24 * 60 * 60 * 1000;
+            const daysLived = Math.floor((targetDate - birthDate) / millisecondsPerDay);
+            
+            // Calculate other metrics
+            const weeksLived = Math.floor(daysLived / 7);
+            const hoursLived = daysLived * 24;
+            const heartbeats = (daysLived * 24 * 60 * 70 / 1000000).toFixed(1); // Average 70 bpm
+            const breaths = (daysLived * 24 * 60 * 16 / 1000000).toFixed(1); // Average 16 breaths per minute
+            
+            // Calculate life percentage
+            const lifeExpectancyDays = lifeExpectancy * 365.25;
+            const lifePercentage = ((daysLived / lifeExpectancyDays) * 100).toFixed(1);
+            
+            // Update detailed stats
+            document.getElementById('days-lived').textContent = daysLived.toLocaleString();
+            document.getElementById('weeks-lived').textContent = weeksLived.toLocaleString();
+            document.getElementById('hours-lived').textContent = hoursLived.toLocaleString();
+            document.getElementById('life-percentage').textContent = lifePercentage + '%';
+            document.getElementById('heartbeats').textContent = heartbeats;
+            document.getElementById('breaths').textContent = breaths;
+            
+            // Calculate next birthday
+            const nextBirthdayYear = targetDate.getFullYear() + (targetDate.getMonth() > birthDate.getMonth() || 
+                (targetDate.getMonth() === birthDate.getMonth() && targetDate.getDate() >= birthDate.getDate()) ? 1 : 0);
+            const nextBirthday = new Date(nextBirthdayYear, birthDate.getMonth(), birthDate.getDate());
+            const daysToNextBirthday = Math.ceil((nextBirthday - targetDate) / millisecondsPerDay);
+            document.getElementById('next-birthday-value').textContent = `${daysToNextBirthday} days`;
+
+            // Show results section
+            document.getElementById('results').style.display = 'block';
+            document.getElementById('no-results').style.display = 'none';
+
+            // Save to history
+            const resultData = {
+                name,
+                age: `${ageYears} years, ${ageMonths} months, ${ageDays} days`,
+                daysLived,
+                date: new Date().toLocaleString()
+            };
+
+            calculationHistory.unshift(resultData);
+            if (calculationHistory.length > 10) calculationHistory.pop(); // Limit history
+            localStorage.setItem('ageCalcHistory', JSON.stringify(calculationHistory));
+            updateHistoryDisplay();
+        }
+
+        function updateHistoryDisplay() {
+            const historySection = document.getElementById('history-section');
+            const historyList = document.getElementById('history-list');
+            historyList.innerHTML = '';
+
+            if (calculationHistory.length === 0) {
+                historySection.style.display = 'none';
+                return;
+            }
+
+            calculationHistory.forEach(entry => {
+                const li = document.createElement('li');
+                li.textContent = `${entry.name} - ${entry.age} - Calculated on ${entry.date}`;
+                historyList.appendChild(li);
+            });
+
+            historySection.style.display = 'block';
+        }
